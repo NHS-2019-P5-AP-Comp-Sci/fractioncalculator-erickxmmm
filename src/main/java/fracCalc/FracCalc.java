@@ -10,11 +10,10 @@ import java.util.Scanner;
 public class FracCalc {
 
 	public static void main(String[] args) {
+		// TODO: Read the input from the user and call produceAnswer with an equation
 		Scanner s = new Scanner(System.in);
-
 		String problem = "";
 
-		// While the problem doesn't equal quit keep running
 		while (!problem.equals("quit")) {
 			System.out.print("Type your problem here: ");
 			problem = s.nextLine();
@@ -22,14 +21,7 @@ public class FracCalc {
 				System.out.println(produceAnswer(problem));
 			}
 		}
-
 		s.close();
-		/*
-		 * System.out.println("Type your problem here: "); String response =
-		 * s.nextLine(); System.out.println(produceAnswer(response));
-		 */
-
-		// TODO: Read the input from the user and call produceAnswer with an equation
 
 	}
 
@@ -45,28 +37,52 @@ public class FracCalc {
 	// calculated
 	// e.g. return ==> "1_1/4"
 	public static String produceAnswer(String input) {
-		// Finds first space of users input
-		int a = input.indexOf(" ");
-		// Gives layout of users input by using space as reference
-		String operand1 = input.substring(0, a);
-		String operator = input.substring(a + 1, a + 2);
-		String operand2 = input.substring(a + 3, input.length());
+		// TODO: Implement this function to produce the solution to the input
 
-		// First operand "1/2" + 1/3
+		// Parsing line of Input
+		// Finds index of the 1st space
+		int a = input.indexOf(" ");
+		// Substring from beginning to space before operators(+, /, -, *)
+		String operand1 = input.substring(0, a);
+
+		String new1 = input.substring(a + 1, input.length());
+		// finds index of the 2nd space
+		int a2 = new1.indexOf(" ");
+		// operator between 1st and 2nd space
+		String operator = new1.substring(0, a2);
+
+		String new2 = new1.substring(a2, new1.length());
+		// substring of space after operator to the end
+		String operand2 = new2.substring(a2, new2.length());
+
+		// Various operations
+		while (operand2.indexOf(" ") > 0) {
+			int a3 = operand2.indexOf(" ");
+			String value = operand2.substring(0, a3);
+			String new3 = operand2.substring(a3 + 1, operand2.length());
+			int a4 = new3.indexOf(" ");
+			String operator2 = new3.substring(a4 - 1, a4);
+			operand2 = new3.substring(a4 + 1, new3.length());
+			String newProblem = operand1 + " " + operator + " " + value;
+			operand1 = produceAnswer(newProblem);
+			operator = operator2;
+		}
+
+		// Parsing First operand "1/2" + 1/3
 		String whole = operand1;
 		String num = "";
 		String denom = "";
 		int dex = operand1.indexOf("/");
 
 		if (dex > 0) {
-			int underscore1 = operand1.indexOf("_");
-			if (underscore1 > 0) {
-				whole = operand1.substring(0, underscore1);
-				num = operand1.substring(underscore1 + 1, dex);
+			int underscore = operand1.indexOf("_");
+			if (underscore > 0) {
+				whole = operand1.substring(0, underscore);
+				num = operand1.substring(underscore + 1, dex);
 				denom = operand1.substring(dex + 1, operand1.length());
 			} else {
 				whole = "0";
-				num = operand1.substring(underscore1 + 1, dex);
+				num = operand1.substring(underscore + 1, dex);
 				denom = operand1.substring(dex + 1, operand1.length());
 			}
 
@@ -75,7 +91,8 @@ public class FracCalc {
 			denom = "1";
 		}
 
-		// Second Operand 1/2 + "1/3"
+		// Parsing Second Operand 1/2 + "1/3"
+
 		String whole2 = operand2;
 		String num2 = "";
 		String denom2 = "";
@@ -98,6 +115,7 @@ public class FracCalc {
 			denom2 = "1";
 		}
 
+		// Change strings to integers
 		int whole_1 = Integer.parseInt(whole);
 		int num_1 = Integer.parseInt(num);
 		int denom_1 = Integer.parseInt(denom);
@@ -106,7 +124,7 @@ public class FracCalc {
 		int num_2 = Integer.parseInt(num2);
 		int denom_2 = Integer.parseInt(denom2);
 
-		// changes into an improper fraction
+		// changes to improper fraction
 		num_1 += denom_1 * Math.abs(whole_1);
 		if (whole_1 < 0) {
 			num_1 *= -1;
@@ -117,69 +135,93 @@ public class FracCalc {
 			num_2 *= -1;
 		}
 
-		// For final return
+		// Variables for Final return
 		int numerator = 0;
 		int denominator = 0;
 		int whole_ = 0;
 
-		// addition
+		// If denominator = 0, quit
+		if (denom_1 == 0 || denom_2 == 0) {
+			return "Invalid input";
+		}
 
+		// If incorrect -> quit
+		if (operator.length() > 1) { 
+			return "Invalid input";
+		} 
+
+		// Adding
 		if (operator.equals("+")) {
 			num_1 *= denom_2;
 			num_2 *= denom_1;
-
-			int temp_denominator = denom_1;
-			denom_1 *= denom_2;
-			denom_2 *= temp_denominator;
-
 			numerator = num_1 + num_2;
-			denominator = denom_1;
-		}
-
-		// subtraction
-		if (operator.equals("-")) {
-			num_1 *= denom_2;
-			num_2 *= denom_1;
-
-			int temp_denominator = denom_1;
-			denom_1 *= denom_2;
-			denom_2 *= temp_denominator;
-
-			numerator = num_1 - num_2;
-			denominator = denom_2;
-		}
-		// multiplication
-		if (operator.equals("*")) {
-			numerator = num_1 * num_2;
 			denominator = denom_1 * denom_2;
 		}
 
-		// division
-		if (operator.equals("/")) {
-			numerator = num_1 * denom_2;
-			denominator = denom_1 * num_2;
+		// Subtracting
+		if (operator.equals("-")) {
+			num_1 *= denom_2;
+			num_2 *= denom_1;
+			numerator = num_1 - num_2;
+			denominator = denom_1 * denom_2;
 		}
 
-		// change to mixed fraction if numerator is +
+		// Multiplying
+		if (operator.equals("*")) {
+			numerator = num_1 * num_2;
+			denominator = denom_1 * denom_2;
+			if (num_1 == 0 || num_2 == 0) {
+				return 0 + "";
+			}
+		}
+
+		// Dividing
+		if (operator.equals("/")) {
+			numerator = num_1 * denom_2;// done
+			denominator = denom_1 * num_2;// done
+		}
+
+		// Makes numerator (-) instead of denominator
+		if (denominator < 0 && numerator > 0) {// done
+			denominator *= -1;// done
+			numerator *= -1;// done
+		} // done
+
+		// Change to mixed fraction if numerator is (+)
 		while (numerator / denominator >= 1) {
 			numerator -= denominator;
 			whole_ += 1;
 		}
 
-		// change to mixed fraction if numerator is -
+		// Convert to mixed fraction if numerator is (-)
 		while (numerator / denominator <= -1) {
 			numerator += denominator;
-			whole_ -= 1;
+			whole_ -= 1;// done
 		}
 
+		// Remove signs from numerator and denominator if there is a whole#
 		if (whole_ != 0) {
 			numerator = Math.abs(numerator);
 			denominator = Math.abs(denominator);
 		}
-		// final answer
+
+		// Reduces fraction
+		int last = 1;
+		for (int i = 1; i <= Math.abs(numerator) && i <= Math.abs(denominator); i++) {
+			if (numerator % i == 0 && denominator % i == 0)
+				last = i;
+		}
+		numerator /= last;
+		denominator /= last;
+
+		// FINAL OUTPUT
 		if (whole_ == 0) {
-			return numerator + "/" + denominator;
-		} else if (numerator == 0 && denominator == 1) {
+			if (numerator == 0) {
+				return "0";
+			} else {
+				return numerator + "/" + denominator;
+			}
+		} else if (numerator == 0 || denominator == 1) {
 			return whole_ + "";
 		} else {
 			return whole_ + "_" + numerator + "/" + denominator;
